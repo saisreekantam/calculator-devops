@@ -68,7 +68,10 @@ pipeline {
                                                   passwordVariable: 'DH_TOKEN')]) {
                     // Throwaway docker config inside the workspace: the login token is
                     // written there (not to the macOS keychain) and deleted right after.
+                    // An empty config also drops Docker Desktop's "desktop-linux" context,
+                    // so the daemon socket has to be given explicitly.
                     sh '''
+                        export DOCKER_HOST="unix://$HOME/.docker/run/docker.sock"
                         export DOCKER_CONFIG="$WORKSPACE/.docker"
                         mkdir -p "$DOCKER_CONFIG" && echo '{}' > "$DOCKER_CONFIG/config.json"
                         echo "$DH_TOKEN" | docker login -u "$DH_USER" --password-stdin
